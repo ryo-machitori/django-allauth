@@ -25,6 +25,7 @@ class OAuth2Adapter(object):
     redirect_uri_protocol = None  # None: use ACCOUNT_DEFAULT_HTTP_PROTOCOL
     access_token_method = 'POST'
     login_cancelled_error = 'access_denied'
+    use_basic_authorization = False
 
     def get_provider(self):
         return providers.registry.by_id(self.provider_id)
@@ -68,7 +69,8 @@ class OAuth2View(object):
                               self.adapter.access_token_method,
                               self.adapter.access_token_url,
                               callback_url,
-                              scope)
+                              scope,
+                              self.adapter.use_basic_authorization)
         return client
 
 

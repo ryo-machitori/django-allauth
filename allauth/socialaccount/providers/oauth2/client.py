@@ -1,3 +1,4 @@
+
 try:
     from urllib.parse import parse_qsl, urlencode
 except ImportError:
@@ -16,7 +17,8 @@ class OAuth2Client(object):
                  access_token_method,
                  access_token_url,
                  callback_url,
-                 scope):
+                 scope,
+                 use_basic_authorization):
         self.request = request
         self.access_token_method = access_token_method
         self.access_token_url = access_token_url
@@ -25,6 +27,7 @@ class OAuth2Client(object):
         self.consumer_secret = consumer_secret
         self.scope = ' '.join(scope)
         self.state = None
+        self.use_basic_authorization = use_basic_authorization
 
     def get_redirect_url(self, authorization_url, extra_params):
         params = {
@@ -39,12 +42,16 @@ class OAuth2Client(object):
         return '%s?%s' % (authorization_url, urlencode(params))
 
     def get_access_token(self, code):
-        data = {'client_id': self.consumer_key,
-                'redirect_uri': self.callback_url,
+        data = {'redirect_uri': self.callback_url,
                 'grant_type': 'authorization_code',
-                'client_secret': self.consumer_secret,
                 'scope': self.scope,
                 'code': code}
+        auth = None
+        if self.use_basic_authorization:
+            auth = (self.consumer_key, self.consumer_secret)
+        else:
+            data['client_id'] = self.consumer_key
+            data['client_secret'] = self.consumer_secret
         params = None
         self._strip_empty_keys(data)
         url = self.access_token_url
@@ -55,7 +62,8 @@ class OAuth2Client(object):
         resp = requests.request(self.access_token_method,
                                 url,
                                 params=params,
-                                data=data)
+                                data=data,
+                                auth=auth)
         access_token = None
         if resp.status_code == 200:
             # Weibo sends json via 'text/plain;charset=UTF-8'
@@ -70,7 +78,7 @@ class OAuth2Client(object):
         return access_token
 
     def _strip_empty_keys(self, params):
-        """Added because the Dropbox OAuth2 flow doesn't 
+        """Added because the Dropbox OAuth2 flow doesn't
         work when scope is passed in, which is empty.
         """
         keys = [k for k, v in params.items() if v == '']
