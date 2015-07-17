@@ -8,7 +8,7 @@ from .provider import YahooJPOAuth2Provider
 
 class YahooJPOAuth2Tests(create_oauth2_tests(registry.by_id(YahooJPOAuth2Provider.id))):
     def get_mocked_response(self):
-        return MockedResponse(200, """
+        return MockedResponse(200, u"""
 {
   "user_id": "43M63NAGMHBAYMXRMY3WODOWS4",
   "name": "矢風太郎",

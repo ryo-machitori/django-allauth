@@ -12,6 +12,7 @@ class YahooJPOAuth2Adapter(OAuth2Adapter):
     access_token_url = 'https://auth.login.yahoo.co.jp/yconnect/v1/token'
     authorize_url = 'https://auth.login.yahoo.co.jp/yconnect/v1/authorization'
     profile_url = 'https://userinfo.yahooapis.jp/yconnect/v1/attribute'
+    redirect_uri_protocol = 'https'
     use_basic_authorization = True
 
     def complete_login(self, request, app, token, **kwargs):
